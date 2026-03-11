@@ -8,7 +8,7 @@
       </div>
       <div class="form-group">
         <label>Telefon</label>
-        <input v-model="customer.phone" type="tel" class="date-input" />
+        <input v-model="customer.phone" type="tel" class="date-input" @input="validatePhone" />
       </div>
       <button @click="submitBooking" class="next-btn">Kinnita</button>
     </div>
@@ -24,11 +24,27 @@ const customer = ref({
   phone: ''
 });
 
+const validatePhone = (event) => {
+  let val = event.target.value.replace(/\D/g, '');
+
+  if (val.length > 8) {
+    val = val.slice(0, 8);
+  }
+
+  customer.value.phone = val;
+};
+
 const submitBooking = () => {
   if (!customer.value.name || !customer.value.phone) {
-    alert("Palun täitke väljad!");
+    alert("Palun täitke kõik väljad!");
     return;
   }
+
+  if (customer.value.phone.length !== 8) {
+    alert("Telefoni number peab olema täpselt 8 numbrit pikk!");
+    return;
+  }
+
   emit('go-to-summary', { ...customer.value });
 };
 </script>
