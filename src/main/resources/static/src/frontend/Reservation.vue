@@ -2,7 +2,7 @@
   <div class="restaurant-container">
     <header class="header">
       <h1>Laua broneerimine</h1>
-      <p>Valige sobiva lauda</p>
+      <p>Valige sobiv laud plaanilt</p>
     </header>
 
     <div class="floor-plan">
@@ -11,12 +11,7 @@
           :key="table.id"
           class="table-marker"
           :style="{ left: table.xcoordinate + 'px', top: table.ycoordinate + 'px' }"
-          :class="{
-       'near-window': table.nearWindow,
-       'size-2': table.capacity <= 2,
-       'size-4': table.capacity > 2 && table.capacity <= 4,
-       'size-6': table.capacity > 4
-    }"
+          :class="getTableClass(table)"
           @click="selectTable(table)"
       >
         <div class="table-info">
@@ -28,8 +23,6 @@
 
     <div v-if="selectedTable" class="selection-detail">
       <h3>Valitud laud №{{ selectedTable.id }}</h3>
-      <p>Mahutavus: {{ selectedTable.capacity }} in.</p>
-      <p>Tsoon: {{ selectedTable.zone }}</p>
       <button @click="$emit('go-to-customer-info', selectedTable)" class="btn-book">
         Reserveeri
       </button>
@@ -39,21 +32,44 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-defineProps(['filterData']);
+
+const props = defineProps(['filterData']);
 defineEmits(['go-to-customer-info']);
+
 const tables = ref([]);
 const selectedTable = ref(null);
+
+const getTableClass = (table) => {
+  return {
+    'near-window': table.nearWindow,
+    'is-selected': selectedTable.value?.id === table.id,
+    'is-occupied': table.occupied === true,
+    'size-2': table.capacity <= 2,
+    'size-4': table.capacity > 2 && table.capacity <= 4,
+    'size-6': table.capacity > 4
+  };
+};
+
 const fetchTables = async () => {
   try {
-    const response = await fetch('http://localhost:8080/api/tables');
-    if (!response.ok) throw new Error('Ошибка сервера');
+    const startTime = props.filterData?.startTime;
+    const endTime = props.filterData?.endTime;
+    let url = 'http://localhost:8080/api/tables';
+
+    if (startTime && endTime) {
+      url += `?start=${startTime}&end=${endTime}`;
+    }
+
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Viga');
     tables.value = await response.json();
   } catch (error) {
-    console.error("Не удалось загрузить столы:", error);
+    console.error("Viga laudade laadimisel:", error);
   }
 };
 
 const selectTable = (table) => {
+  if (table.occupied) return;
   selectedTable.value = table;
 };
 
@@ -61,7 +77,6 @@ onMounted(fetchTables);
 </script>
 
 <style scoped>
-
 .header {
   display: flex;
   flex-direction: column;
@@ -69,6 +84,7 @@ onMounted(fetchTables);
   justify-content: center;
   font-family: sans-serif;
 }
+
 .floor-plan {
   position: relative;
   width: 800px;
@@ -83,8 +99,6 @@ onMounted(fetchTables);
 
 .table-marker {
   position: absolute;
-  width: 70px;
-  height: 70px;
   background-color: #795548;
   border-radius: 12px;
   display: flex;
@@ -92,33 +106,31 @@ onMounted(fetchTables);
   align-items: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   transform: translate(-50%, -50%);
 }
 
-.size-2 {
-  width: 60px;
-  height: 60px;
-}
+.size-2 { width: 60px; height: 60px; }
+.size-4 { width: 100px; height: 60px; }
+.size-6 { width: 150px; height: 70px; }
 
-.size-4 {
-  width: 100px;
-  height: 60px;
-}
-
-.size-6 {
-  width: 150px;
-  height: 70px;
-}
-
-.table-marker:hover {
+.table-marker:hover:not(.is-occupied) {
   transform: translate(-50%, -50%) scale(1.05);
   background-color: #5d4037;
-  z-index: 10;
 }
 
-.near-window {
-  border: 4px solid #00bcd4;
+.near-window { border: 4px solid #00bcd4; }
+.is-selected { outline: 4px solid #4caf50; outline-offset: 4px; }
+
+/* Стили для занятого стола */
+.is-occupied {
+  background-color: #e8e8e8 !important;
+  cursor: not-allowed !important;
+  opacity: 0.6;
+}
+
+.is-occupied .table-info {
+  color: black !important;
 }
 
 .table-info {
@@ -148,5 +160,6 @@ onMounted(fetchTables);
   padding: 10px 20px;
   border-radius: 4px;
   cursor: pointer;
+  font-weight: bold;
 }
 </style>

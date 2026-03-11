@@ -12,7 +12,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class RestaurantService {
+public class RestaurantTableService {
     private final RestaurantTableRepository restaurantTableRepository;
     private final ReservationRepository reservationRepository;
 
@@ -33,11 +33,15 @@ public class RestaurantService {
 
     public List<RestaurantTable> findAvailableTables(LocalDateTime start, LocalDateTime end) {
         List<RestaurantTable> allTables = restaurantTableRepository.findAll();
+
         List<Reservation> allReservations = reservationRepository.findAll();
 
-        return allTables.stream()
-                .filter(table -> isTableAvailable(table, start, end, allReservations))
-                .toList();
+        for (RestaurantTable table : allTables) {
+            boolean available = isTableAvailable(table, start, end, allReservations);
+            table.setOccupied(!available);
+        }
+
+        return allTables;
     }
 
     private boolean isTableAvailable(RestaurantTable table, LocalDateTime start, LocalDateTime end, List<Reservation> reservations) {

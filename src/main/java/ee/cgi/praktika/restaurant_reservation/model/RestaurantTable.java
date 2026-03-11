@@ -23,6 +23,8 @@ public class RestaurantTable {
     private boolean isKidsFriendly;
     @Enumerated(EnumType.STRING)
     private Zone zone;
+    @Transient
+    private boolean occupied;
 
     public enum Zone {
         TERRACE,

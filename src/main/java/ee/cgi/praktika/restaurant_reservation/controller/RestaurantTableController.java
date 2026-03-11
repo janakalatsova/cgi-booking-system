@@ -1,22 +1,26 @@
 package ee.cgi.praktika.restaurant_reservation.controller;
 
 import ee.cgi.praktika.restaurant_reservation.model.RestaurantTable;
-import ee.cgi.praktika.restaurant_reservation.service.RestaurantService;
+import ee.cgi.praktika.restaurant_reservation.service.RestaurantTableService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/tables")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:5173")
-public class RestaurantController {
-    private final RestaurantService restaurantService;
+public class RestaurantTableController {
+    private final RestaurantTableService restaurantService;
 
     @GetMapping()
-    public List<RestaurantTable> getAllRestaurantTables() {
-        return restaurantService.getAllRestaurantTables();
+    public List<RestaurantTable> getAllRestaurantTables(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
+        return restaurantService.findAvailableTables(start, end);
     }
 
     @GetMapping("/{id}")
