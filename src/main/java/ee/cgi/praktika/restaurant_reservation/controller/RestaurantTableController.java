@@ -1,6 +1,7 @@
 package ee.cgi.praktika.restaurant_reservation.controller;
 
 import ee.cgi.praktika.restaurant_reservation.model.RestaurantTable;
+import ee.cgi.praktika.restaurant_reservation.model.SearchRequest;
 import ee.cgi.praktika.restaurant_reservation.service.RestaurantTableService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -47,5 +48,10 @@ public class RestaurantTableController {
     public RestaurantTable updateRestaurantTable(@RequestBody RestaurantTable restaurantTable, @PathVariable Long id) {
         restaurantTable.setId(id);
         return restaurantService.updateRestaurantTable(restaurantTable);
+    }
+
+    @PostMapping("/search")
+    public List<RestaurantTable> searchTables(@RequestBody SearchRequest request) {
+        return restaurantService.findBestTables(request);
     }
 }

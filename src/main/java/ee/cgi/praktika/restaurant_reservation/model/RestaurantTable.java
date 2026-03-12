@@ -25,6 +25,8 @@ public class RestaurantTable {
     private Zone zone;
     @Transient
     private boolean occupied;
+    @Transient
+    private int searchScore;
 
     public enum Zone {
         TERRACE,

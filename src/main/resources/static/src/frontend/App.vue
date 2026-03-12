@@ -4,7 +4,12 @@
 
     <TableFilter v-if="currentPage === 'table_filter'" @go-to-map="handleFilterConfirmed" />
 
-    <Index v-if="currentPage === 'map'" :filterData="bookingData" @go-to-customer-info="handleTableSelected" />
+    <Reservation
+        v-if="currentPage === 'map'"
+        :filterData="bookingData"
+        @go-to-customer-info="handleTableSelected"
+        @go-back="currentPage = 'table_filter'"
+    />
 
     <CustomerInfo v-if="currentPage === 'customer_info'" @go-to-summary="handleBookingComplete" />
 
@@ -16,7 +21,7 @@
 import {ref} from 'vue';
 import Homepage from './Homepage.vue';
 import TableFilter from './TableFilter.vue';
-import Index from './Reservation.vue';
+import Reservation from './Reservation.vue';
 import CustomerInfo from './CustomerInfo.vue';
 import Summary from './Summary.vue';
 
@@ -88,5 +93,9 @@ const handleBookingComplete = async (customerDetails) => {
     console.error("Booking failed:", err);
     alert("Serveri viga! Proovige hiljem uuesti.");
   }
+};
+
+const goBackToFilter = () => {
+  step.value = 'filter';
 };
 </script>

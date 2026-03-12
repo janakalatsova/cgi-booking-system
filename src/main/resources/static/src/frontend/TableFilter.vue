@@ -29,6 +29,16 @@
       </div>
 
       <div class="form-group">
+        <label>Tsoon</label>
+        <select v-model="filterData.zone" class="date-input">
+          <option value="">Kõik tsoonid</option>
+          <option value="TERRACE">Terrass</option>
+          <option value="C_HALL">Sisesaal</option>
+          <option value="PRIVATE">Privaatruum</option>
+        </select>
+      </div>
+
+      <div class="form-group">
         <label>Eelistused:</label>
         <div class="checkbox-group">
           <label class="checkbox-item"><input type="checkbox" v-model="filterData.preferences.quiet" /><span>Vaikne koht</span></label>
@@ -45,7 +55,6 @@
 import { reactive, watch } from 'vue';
 const emit = defineEmits(['go-to-map']);
 
-// Функция для получения текущего времени в формате YYYY-MM-DDTHH:mm без лишних сдвигов
 const getCurrentLocalISO = (date = new Date()) => {
   const offset = date.getTimezoneOffset() * 60000;
   return new Date(date.getTime() - offset).toISOString().slice(0, 16);
@@ -54,12 +63,11 @@ const getCurrentLocalISO = (date = new Date()) => {
 const filterData = reactive({
   guests: 2,
   startTime: getCurrentLocalISO(),
-  // Ставим конец сразу на +1 час
   endTime: getCurrentLocalISO(new Date(Date.now() + 60 * 60 * 1000)),
-  preferences: {quiet: false, kids: false, window: false}
+  zone: '',
+  preferences: { quiet: false, kids: false, window: false }
 });
 
-// Исправленный watch: корректно прибавляет 1 час
 watch(() => filterData.startTime, (newVal) => {
   if (!newVal) return;
   const start = new Date(newVal);
@@ -68,7 +76,6 @@ watch(() => filterData.startTime, (newVal) => {
 });
 
 const confirmFilter = () => {
-  // Принудительно обрезаем всё лишнее (секунды, Z, миллисекунды)
   const startTimeClean = filterData.startTime.slice(0, 16);
   const endTimeClean = filterData.endTime.slice(0, 16);
 
@@ -85,7 +92,6 @@ const confirmFilter = () => {
     return;
   }
 
-  // Отправляем чистые данные
   emit('go-to-map', {
     ...filterData,
     startTime: startTimeClean,
@@ -136,7 +142,6 @@ label {
   font-size: 1.1em;
 }
 
-/* Стилизация чекбоксов */
 .checkbox-group {
   display: flex;
   flex-direction: column;
@@ -162,7 +167,6 @@ label {
   cursor: pointer;
 }
 
-/* Остальные стили из предыдущего шага */
 .custom-slider {
   width: 100%;
   -webkit-appearance: none;
@@ -180,12 +184,6 @@ label {
   cursor: pointer;
   border: 2px solid white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.range-numbers {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 5px;
 }
 
 .range-numbers span {
