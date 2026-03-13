@@ -20,7 +20,6 @@
 </template>
 
 <script setup>
-// Принимаем пропсы от App.vue
 defineProps(['reservation']);
 
 const formatTime = (dateTimeStr) => {

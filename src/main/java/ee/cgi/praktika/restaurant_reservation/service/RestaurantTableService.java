@@ -19,31 +19,24 @@ public class RestaurantTableService {
     private final ReservationRepository reservationRepository;
 
     public List<RestaurantTable> findBestTables(SearchRequest request) {
-        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
-        java.time.LocalDateTime start = java.time.LocalDateTime.parse(request.getStartTime(), formatter);
-        java.time.LocalDateTime end = java.time.LocalDateTime.parse(request.getEndTime(), formatter);
-
+        LocalDateTime start = request.getStartTime();
+        LocalDateTime end = request.getEndTime();
         List<RestaurantTable> allTables = restaurantTableRepository.findAll();
         List<Reservation> allReservations = reservationRepository.findAll();
 
         return allTables.stream()
                 .filter(t -> t.getCapacity() >= request.getGuests())
-                // ... остальная логика стрима
-                // Проверка зоны (если она выбрана)
                 .filter(t -> request.getZone() == null || request.getZone().isEmpty() ||
                         t.getZone().toString().equals(request.getZone()))
-                // Проверка, свободен ли стол
                 .filter(t -> isTableAvailable(t, start, end, allReservations))
                 .peek(t -> {
-                    // Рассчитываем баллы для рекомендации (согласно пункту 2.21 задания)
                     int score = 0;
                     if (t.getCapacity() == request.getGuests()) score += 10;
                     if (request.isQuiet() && t.isQuiet()) score += 5;
-                    if (request.isWindow() && t.isNearWindow()) score += 5;
-                    if (request.isKids() && t.isKidsFriendly()) score += 5;
+                    if (request.isNearWindow() && t.isNearWindow()) score += 5;
+                    if (request.isKidsFriendly() && t.isKidsFriendly()) score += 5;
                     t.setSearchScore(score);
                 })
-                // Сортируем: лучшие рекомендации в начале списка
                 .sorted(Comparator.comparingInt(RestaurantTable::getSearchScore).reversed())
                 .toList();
     }
@@ -52,8 +45,8 @@ public class RestaurantTableService {
         return restaurantTableRepository.findById(id).orElse(null);
     }
 
-    public List<RestaurantTable> getRestaurantTableByCapacity(int capacity) {
-        return restaurantTableRepository.findByCapacity(capacity);
+    public List<RestaurantTable> getAllTables() {
+        return restaurantTableRepository.findAll();
     }
 
     public RestaurantTable createRestaurantTable(RestaurantTable restaurantTable) {
@@ -78,8 +71,6 @@ public class RestaurantTableService {
                 .filter(r -> r.getRestaurantTable().getId().equals(table.getId()))
                 .noneMatch(r -> start.isBefore(r.getEndTime()) && end.isAfter(r.getStartTime()));
     }
-
-
 
     public RestaurantTable updateRestaurantTable(RestaurantTable restaurantTable) {
         return restaurantTableRepository.save(restaurantTable);

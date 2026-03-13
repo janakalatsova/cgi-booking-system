@@ -82,7 +82,6 @@ const handleBookingComplete = async (customerDetails) => {
       };
       currentPage.value = 'summary';
 
-      // Reset state
       bookingData.value = null;
       selectedTable.value = null;
     } else {

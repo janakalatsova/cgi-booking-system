@@ -65,12 +65,10 @@ const getTableClass = (table) => {
 
 const fetchTables = async () => {
   try {
-    // 1. Сначала загружаем ВООБЩЕ ВСЕ столы для карты
     const allRes = await fetch(`http://localhost:8080/api/tables?start=${props.filterData.startTime}&end=${props.filterData.endTime}`);
     const allData = await allRes.json();
     const allTablesArray = Array.isArray(allData) ? allData : [];
 
-    // 2. Теперь загружаем результаты поиска (подходящие столы)
     const searchRes = await fetch('http://localhost:8080/api/tables/search', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -86,13 +84,11 @@ const fetchTables = async () => {
     const suitableTables = await searchRes.json();
     const suitableIds = new Set(suitableTables.map(t => t.id));
 
-    // 3. Объединяем: оставляем все столы, но помечаем, какие из них активны
     tables.value = allTablesArray.map(table => ({
       ...table,
-      isSuitable: suitableIds.has(table.id) // Добавляем флаг пригодности
+      isSuitable: suitableIds.has(table.id)
     }));
 
-    // Помечаем первый из подходящих как рекомендованный
     if (suitableTables.length > 0) {
       const bestId = suitableTables[0].id;
       const bestTable = tables.value.find(t => t.id === bestId);
@@ -118,8 +114,6 @@ const selectTable = (table) => {
 
   selectedTable.value = table;
 };
-
-
 
 onMounted(fetchTables);
 </script>
@@ -172,15 +166,15 @@ onMounted(fetchTables);
 .is-selected { outline: 4px solid #4caf50; outline-offset: 4px; }
 
 .is-occupied {
-  background-color: #ff4d4d !important; /* Насыщенный красный */
+  background-color: #ff4d4d !important;
   cursor: not-allowed !important;
-  opacity: 1; /* Убираем прозрачность, чтобы цвет был плотным */
+  opacity: 1;
   box-shadow: none;
 }
 
 .is-occupied .table-info {
-  background-color: transparent !important; /* Убираем лишний фон у текста */
-  color: #000 !important; /* Черный текст для контраста */
+  background-color: transparent !important;
+  color: #000 !important;
 }
 
 .table-info {
@@ -215,8 +209,8 @@ onMounted(fetchTables);
 
 .btn-secondary {
   position: absolute;
-  left: 20px; /* Добавьте отступ от левого края */
-  top: 20px;  /* Добавьте отступ сверху */
+  left: 20px;
+  top: 20px;
   background: white;
   border: 1px solid #ced4da;
   padding: 10px 18px;
@@ -224,12 +218,12 @@ onMounted(fetchTables);
   cursor: pointer;
   font-weight: 600;
   color: #795548;
-  z-index: 100; /* Чтобы кнопка всегда была поверх других элементов */
+  z-index: 100;
   transition: all 0.2s;
 }
 
 .is-recommended {
-  outline: 5px solid gold; /* Золотая рамка для лучшего стола */
+  outline: 5px solid gold;
   outline-offset: 4px;
   z-index: 10;
 }
@@ -240,7 +234,6 @@ onMounted(fetchTables);
   cursor: not-allowed !important;
 }
 
-/* Контейнер для легенды */
 .legend {
   display: flex;
   justify-content: center;
@@ -265,7 +258,6 @@ onMounted(fetchTables);
 .selected {background-color: #4caf50}
 
 
-/* Плавное выделение при выборе */
 .is-selected {
   outline: 4px solid #4caf50;
   outline-offset: 4px;

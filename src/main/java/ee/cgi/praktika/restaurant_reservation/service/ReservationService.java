@@ -24,10 +24,6 @@ public class ReservationService {
         return reservationRepository.findById(id).orElse(null);
     }
 
-    public List<Reservation> findByNumberOfGuests(int capacity) {
-        return reservationRepository.findByNumberOfGuests(capacity);
-    }
-
     public Reservation createReservation(Reservation newRes) {
         validateReservation(newRes);
         return reservationRepository.save(newRes);

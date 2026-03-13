@@ -19,19 +19,18 @@ public class RestaurantTableController {
 
     @GetMapping()
     public List<RestaurantTable> getAllRestaurantTables(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
+        if (start == null || end == null) {
+            return restaurantService.getAllTables();
+        }
+
         return restaurantService.findAvailableTables(start, end);
     }
 
     @GetMapping("/{id}")
     public RestaurantTable getRestaurantTableById(@PathVariable Long id) {
         return restaurantService.getRestaurantTableById(id);
-    }
-
-    @GetMapping("/search")
-    public List<RestaurantTable> getRestaurantTableByCapacity(@RequestParam Integer capacity) {
-        return restaurantService.getRestaurantTableByCapacity(capacity);
     }
 
     @PostMapping()
