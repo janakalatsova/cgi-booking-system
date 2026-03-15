@@ -43,6 +43,16 @@ npm run dev
 
 ---
 
+## Rakenduse käivitamine (Docker)
+
+Kõige lihtsam ja soovitatavam viis rakenduse käivitamiseks on kasutada Dockerit. See käivitab automaatselt nii backendi, frontendi kui ka andmebaasi ühes võrgus.
+
+1. Veendu, et **Docker Desktop** on arvutis käivitatud.
+2. Ava terminal projekti juurkaustas.
+3. Sisesta käsk:
+   ```bash
+   docker compose up --build
+
 ## Teostatud lahenduse kirjeldus
 
 ### Tehniline pinu (Tech Stack)
@@ -50,6 +60,8 @@ npm run dev
 * **Backend**: Java 21, Spring Boot, Spring Data JPA, **PostgreSQL**.
 * **Frontend**: Vue 3 (Composition API), Vite, `libphonenumber-js` teek.
 * **Andmebaas**: PostgreSQL.
+* Infrastruktuur: Docker, Docker Compose. 
+* Testimine: JUnit 5
 
 ### Peamised funktsionaalsused
 
@@ -63,11 +75,11 @@ npm run dev
 
 ### Tööks kulunud aeg
 
-* **Kokku**: 13h
+* **Kokku**: 16h
 * Planeerimine ja andmebaasi disain: 3h
 * Backend loogika ja Scoring süsteem: 4h
 * Frontend ja saaliplaani visualiseerimine: 5h
-* Dokumentatsioon: 1h
+* Docker, testimine ja dokumentatsioon: 4h
 
 ### Märkus Git-i kasutamise kohta
 
@@ -77,6 +89,7 @@ npm run dev
 
 * **Aegade kattuvuse kontroll**: Tagamine, et ühte lauda ei saaks broneerida kattuvale ajale. Lahendasin selle SQL-päringuga, mis võrdleb ajavahemikke.
 * **Telefoninumbri komponent**: Oli väljakutse luua komponent, mis puhastaks sisendi muudest sümbolitest peale numbrite, kuid säilitaks korrektse rahvusvahelise formaadi.
+* Docker macOS-il: Esines takistus, kus terminal ei tuvastanud docker käsku (command not found). Lahendasin selle, lisades Dockeri bin-kausta tee käsitsi süsteemi PATH muutujasse (export PATH=$PATH:/Applications/Docker.app/Contents/Resources/bin).
 
 ### Tehisintellekti (AI) kasutus
 
