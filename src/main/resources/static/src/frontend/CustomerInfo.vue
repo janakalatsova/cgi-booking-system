@@ -2,36 +2,43 @@
   <div class="filter-wrapper">
     <div class="filter-card">
       <h2>Kliendi andmed</h2>
+
       <div class="form-group">
         <label>Nimi</label>
-        <input v-model="customer.name" type="text" class="date-input" />
+        <input v-model="customer.name" type="text" class="date-input" placeholder="Teie nimi" />
       </div>
+
       <div class="form-group">
         <label>Telefon</label>
-        <input v-model="customer.phone" type="tel" class="date-input" @input="validatePhone" />
+        <PhoneInput
+            v-model="customer.phone"
+            v-model:country-code="currentCountry"
+            @update="handlePhoneUpdate"
+        />
+        <small v-if="customer.phone && !isPhoneValid" class="error-text">
+          Palun sisestage korrektne number
+        </small>
       </div>
-      <button @click="submitBooking" class="next-btn">Kinnita</button>
+
+      <button @click="submitBooking" class="next-btn">Kinnita broneering</button>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue';
+import PhoneInput from './PhoneInput.vue';
+
 const emit = defineEmits(['go-to-summary']);
 
-const customer = ref({
-  name: '',
-  phone: ''
-});
+const customer = ref({ name: '', phone: '' });
+const currentCountry = ref('EE');
+const isPhoneValid = ref(false);
+const e164Phone = ref('');
 
-const validatePhone = (event) => {
-  let val = event.target.value.replace(/\D/g, '');
-
-  if (val.length > 8) {
-    val = val.slice(0, 8);
-  }
-
-  customer.value.phone = val;
+const handlePhoneUpdate = (results) => {
+  isPhoneValid.value = results.isValid;
+  e164Phone.value = results.e164; // Формат для БД: +372...
 };
 
 const submitBooking = () => {
@@ -40,12 +47,15 @@ const submitBooking = () => {
     return;
   }
 
-  if (customer.value.phone.length !== 8) {
-    alert("Telefoni number peab olema täpselt 8 numbrit pikk!");
+  if (!isPhoneValid.value) {
+    alert("Telefoni number ei ole korrektne!");
     return;
   }
 
-  emit('go-to-summary', { ...customer.value });
+  emit('go-to-summary', {
+    name: customer.value.name,
+    phone: e164Phone.value
+  });
 };
 </script>
 
@@ -60,26 +70,39 @@ const submitBooking = () => {
   background: white;
   padding: 30px;
   border-radius: 20px;
-  box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
   width: 100%;
-  max-width: 400px;
+  max-width: 450px;
+}
+.form-group {
+  margin-bottom: 20px;
+  text-align: left;
 }
 .date-input {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   border: 1px solid #ddd;
   border-radius: 8px;
   box-sizing: border-box;
 }
+.error-text {
+  color: #e53935;
+  font-size: 12px;
+  margin-top: 5px;
+  display: block;
+}
 .next-btn {
   width: 100%;
-  background: #5d4037;
+  background-color: #5d4037;
   color: white;
+  padding: 15px;
   border: none;
-  padding: 14px;
   border-radius: 10px;
-  font-weight: bold;
   cursor: pointer;
-  margin-top: 15px;
+  font-size: 16px;
+  transition: background 0.3s;
+}
+.next-btn:hover {
+  background-color: #4e342e;
 }
 </style>
